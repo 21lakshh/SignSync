@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gesture & ASL Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #1a73e8;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #1557b0;
+        }
+
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sign Language Converter</h1>
+        
+        <div class="main-grid">
+            <!-- Video Feed Section -->
+            <div class="card">
+                <h2>Live Video Feed</h2>
+                <div id="videoContainer">
+                    <!-- <img id="videoFeed" style="display: none;" width="960" height="540" alt="Video Feed"> -->
+                    <img id = "videoFeed" src="/video_feed" width="960" height="540" alt="Video Feed" style ="display: none;">
+                    
+                </div>
+                <button onclick="startVideoFeed()">Start Video Feed</button>
+                <button onclick="stopVideoFeed()">Stop Video Feed</button>
+            </div>
+            
+            <script>
+            function startVideoFeed() {
+                const videoFeed = document.getElementById('videoFeed');
+                videoFeed.style.display = 'block';
+                videoFeed.src = '/video_feed?' + Date.now();  // Cache buster to prevent caching
+            }
+            function stopVideoFeed() {
+                const videoFeed = document.getElementById('videoFeed');
+                videoFeed.style.display = 'none';
+                videoFeed.src = '';  // Clear the source
+                fetch('/stop_video_feed', { method: 'POST' });
+            }
+            </script>
+            
+            <!-- Gesture to Text Section -->
+            <div class="card">
+                <h2>Gesture to Text Converter</h2>
+                <form id="gestureForm" onsubmit="handleGestureSubmit(event)">
+                    <div class="form-group">
+                        <label for="gestures">Detected Gestures</label>
+                        <input type="text" id="gestures" name="gestures" placeholder="e.g., wave, fist, open-hand" readonly>
+                    </div>
+                    <button type="submit">Generate Message</button>
+                </form>
+                <div class="result-box" id="gestureResult">
+                    <!-- Placeholder for generated message -->
+                </div>
+            </div>
+
+            <!-- ASL to Text Section -->
+            <div class="card">
+                <h2>ASL to Text Converter</h2>
+                <form id="aslForm" onsubmit="handleASLSubmit(event)">
+                    <div class="form-group">
+                        <label for="asl_sentence">ASL Sentence</label>
+                        <textarea id="asl_sentence" name="asl_sentence" rows="3" 
+                                  placeholder="Enter ASL syntax here..."></textarea>
+                    </div>
+                    <button type="submit">Convert to Text</button>
+                </form>
+                <div class="result-box" id="aslResult">
+                    <!-- Placeholder for converted text -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleGestureSubmit(event) {
+            event.preventDefault();
+            const resultBox = document.getElementById('gestureResult');
+            resultBox.innerHTML = `<p>Processing gestures...</p>`;
+            // Add your gesture processing logic here
+        }
+
+        function handleASLSubmit(event) {
+            event.preventDefault();
+            const aslSentence = document.getElementById('asl_sentence').value;
+            const resultBox = document.getElementById('aslResult');
+            resultBox.innerHTML = `<p>Converting ASL...</p>`;
+            
+            // AJAX request to the /convert_asl endpoint
+            fetch('/convert_asl', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'asl_sentence': aslSentence
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.converted_text) {
+                    resultBox.innerHTML = `<h3>Converted Text:</h3><p>${data.converted_text}</p>`;
+                } else {
+                    resultBox.innerHTML = `<p>Error converting ASL.</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resultBox.innerHTML = `<p>Error occurred while converting ASL.</p>`;
+            });
+        }
+    </script>
+</body>
+</html>
