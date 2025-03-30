@@ -9,6 +9,11 @@ SignSync is an AI-powered learning application designed to bridge communication 
 - **ASL Text Transformation**: Takes ASL-based input and refines it into human-like conversational text.
 - **Scalability**: Expandable dataset and gesture recognition for future enhancements.
 
+## 📹 Demo Video
+Check out our demo video showcasing the features of SignSync:
+
+![SignSync Demo](SignSync.mp4)
+
 ## 🏗️ Project Structure
 ```
 SignSync/
@@ -36,6 +41,7 @@ SignSync/
 │── point_history_classification.ipynb
 │── README.md
 │── requirements.txt
+│── SignSync.mp4
 ```
 
 ## 🛠️ Technologies Used
@@ -75,4 +81,5 @@ We welcome contributions! Feel free to open issues and submit pull requests to e
 
 ---
 🌟 *SignSync aims to create an inclusive world where communication barriers are minimized.*
+
 
