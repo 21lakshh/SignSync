@@ -29,7 +29,7 @@ def generate_message_from_gestures(gestures):
     try:
         # Construct the prompt based on the gestures
         gestures_str = ", ".join(gestures)
-        query = f"Based on the following gestures: {gestures_str}, generate a human-like message that conveys the intended meaning."
+        query = f"Based on the following gestures: {gestures_str}, generate a human-like message that conveys the intended meaning. Only output the message."
 
         # Create message payload
         messages = [
@@ -62,7 +62,7 @@ def generate_message_from_gestures(gestures):
 def convert_asl_to_human_text(asl_sentence):
     try:
         # Construct the prompt for converting ASL to human text
-        query = f"Convert the following ASL sentence into grammatically correct human language: '{asl_sentence}'"
+        query = f"Convert the following ASL sentence into grammatically correct human language: '{asl_sentence}'. Only output the message."
 
         # Create message payload
         messages = [
