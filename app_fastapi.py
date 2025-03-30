@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Form, Response
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
@@ -7,7 +7,7 @@ from asltohuman import convert_asl_to_human_text, generate_message_from_gestures
 import cv2
 import os
 import cv2 as cv
-from app import draw_bounding_rect, draw_info, draw_info_text, draw_landmarks,draw_point_history, get_args, select_mode, calc_bounding_rect, calc_landmark_list,convert_asl_to_human_text,pre_process_landmark,pre_process_point_history, logging_csv
+from app import draw_bounding_rect, draw_info_text, draw_landmarks,draw_point_history, get_args, calc_bounding_rect, calc_landmark_list,pre_process_landmark,pre_process_point_history
 import mediapipe as mp
 import csv
 import copy
@@ -35,7 +35,7 @@ min_detection_confidence = args.min_detection_confidence # Threshold for detecti
 min_tracking_confidence = args.min_tracking_confidence # Threshold for tracking hands 
 
 use_brect = True # Draw a bounding rectangle around the hand 
-
+model_path = "model/keypoint_classifier/keypoint_classifier.tflite"
 # Camera preparation ###############################################################
 cap = cv.VideoCapture(cap_device)
 if not cap.isOpened():
@@ -56,19 +56,19 @@ hands = mp_hands.Hands(
     min_tracking_confidence=min_tracking_confidence,
 ) # Mediapipeline pretrained models for tracking hands 
 
-keypoint_classifier = KeyPointClassifier() # Used for recognizing static hand gestures using hand landmarks 
-point_history_classifier = PointHistoryClassifier()
+keypoint_classifier = KeyPointClassifier(model_path=model_path)# Used for recognizing static hand gestures using hand landmarks 
+point_history_classifier = PointHistoryClassifier(model_path=model_path)
  # Used for recognizing dynamic hand gestures Tracks the movement pattern of the hand over time and uses time sequenceds points or past hand positions to recognize gestures 
 
 # Read labels 
-with open('hand-gesture-recognition-mediapipe/model/keypoint_classifier/keypoint_classifier_label.csv',
+with open('model/keypoint_classifier/keypoint_classifier_label.csv',
           encoding='utf-8-sig') as f:
     keypoint_classifier_labels = csv.reader(f)
     keypoint_classifier_labels = [
         row[0] for row in keypoint_classifier_labels
     ]
 with open(
-        'hand-gesture-recognition-mediapipe/model/point_history_classifier/point_history_classifier_label.csv',
+        'model/point_history_classifier/point_history_classifier_label.csv',
         encoding='utf-8-sig') as f:
     point_history_classifier_labels = csv.reader(f)
     point_history_classifier_labels = [
