@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Form, Response
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
@@ -18,6 +18,7 @@ from collections import deque
 from utils import CvFpsCalc
 from model import KeyPointClassifier
 from model import PointHistoryClassifier
+
 
 app = FastAPI()
 
@@ -86,7 +87,6 @@ recognized_gestures = []  # List to store the recognized gestures from the video
 last_gesture = None  # Variable to track the last recognized gesture
 
 def generate():
-    message = None  # Initialize message
     while camera_active == True:
         fps = cvFpsCalc.get()
 
@@ -161,15 +161,6 @@ def generate():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_data + b'\r\n')
 
-    # After stopping, generate the message from recognized gestures
-    if recognized_gestures:
-        message = generate_message_from_gestures(recognized_gestures)
-        print("Generated Message:", message)  # You can also return this to the frontend if needed
-    else:
-        message = "No gestures recognized."  # Default message if no gestures
-
-    return message
-
 # Set up Jinja2 templates
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
@@ -185,6 +176,12 @@ async def convert_asl(asl_sentence: str = Form(...)):
 @app.get("/video_feed")
 async def video_feed():
     return StreamingResponse(generate(), media_type="multipart/x-mixed-replace; boundary=frame")
+
+@app.get("/recognized_data")
+async def get_recognized_data():
+    llm_response = generate_message_from_gestures(recognized_gestures) if recognized_gestures else "No gestures recognized."
+    print(llm_response)
+    return {"recognized_gestures": recognized_gestures, "llm_response": llm_response}
 
 @app.post("/stop_video_feed")
 async def stop_video_feed():

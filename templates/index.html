@@ -135,13 +135,14 @@
                 <form id="gestureForm" onsubmit="handleGestureSubmit(event)">
                     <div class="form-group">
                         <label for="gestures">Detected Gestures</label>
-                        <input type="text" id="gestures" name="gestures" placeholder="e.g., wave, fist, open-hand" readonly>
+                        <input type="text" id="recognized_gestures" name="recognized_gestures" placeholder="e.g., wave, fist, open-hand" readonly>
+                    </div>
+                    <div class="result-box" id="llm_response">
+                        <!-- Placeholder for LLM response -->
                     </div>
                     <button type="submit">Generate Message</button>
                 </form>
-                <div class="result-box" id="gestureResult">
-                    <!-- Placeholder for generated message -->
-                </div>
+
             </div>
 
             <!-- ASL to Text Section -->
@@ -165,11 +166,21 @@
     <script>
         function handleGestureSubmit(event) {
             event.preventDefault();
-            const resultBox = document.getElementById('gestureResult');
-            resultBox.innerHTML = `<p>Processing gestures...</p>`;
-            // Add your gesture processing logic here
-        }
+            // Fetch recognized gestures and LLM response
+            fetch('/recognized_data')
+                .then(response => response.json())
+                .then(data => {
+                    const gesturesInput = document.getElementById('recognized_gestures');
+                    gesturesInput.value = data.recognized_gestures.join(', '); // Join the gestures into a string
 
+                    const llmResponse = document.getElementById('llm_response');
+                    llmResponse.innerHTML = `<h3>LLM Response:</h3><p>${data.llm_response}</p>`; // Update LLM response
+                })
+                .catch(error => {
+                    console.error('Error fetching recognized data:', error);
+                    resultBox.innerHTML = `<p>Error occurred while processing gestures.</p>`;
+                });
+        }
         function handleASLSubmit(event) {
             event.preventDefault();
             const aslSentence = document.getElementById('asl_sentence').value;
