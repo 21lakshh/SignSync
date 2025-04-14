@@ -1,6 +1,6 @@
-# SignSync
+# SignSync - Learning App for deaf and mute 
 
-SignSync is an AI-powered application designed to bridge communication gaps for the Deaf and Mute community. The application utilizes advanced gesture detection and natural language processing techniques to convert American Sign Language (ASL) gestures into human-readable text and vice versa.
+SignSync is an AI-powered learning application designed to bridge communication gaps for the Deaf and Mute community. The application utilizes advanced gesture detection and natural language processing techniques to convert American Sign Language (ASL) gestures into human-readable text and vice versa.
 
 ## 🚀 Features
 - **Gesture Detection Model**: Uses OpenCV and MediaPipe with custom training to detect specific hand gestures.
